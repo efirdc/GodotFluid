@@ -22,7 +22,7 @@ size = Vector2( 1, 1 )
 resource_local_to_scene = true
 shader = ExtResource( 3 )
 shader_param/color = Color( 1, 1, 1, 1 )
-shader_param/point = Vector2( 937.958, -133.484 )
+shader_param/point = Vector2( 934.314, -129.285 )
 shader_param/radius = 0.0
 
 [sub_resource type="ImageTexture" id=4]
@@ -30,8 +30,8 @@ size = Vector2( 1, 1 )
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 3 )
-shader_param/color = Color( 0, 0.5, 0.5, 1 )
-shader_param/point = Vector2( 937.958, -133.484 )
+shader_param/color = Color( 0.5, 0, 0.5, 1 )
+shader_param/point = Vector2( 934.314, -129.285 )
 shader_param/radius = 0.0
 
 [sub_resource type="ImageTexture" id=6]
