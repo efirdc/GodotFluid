@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=2]
+
+[ext_resource path="res://fluid/subtract_pressure.shader" type="Shader" id=1]
+
+[sub_resource type="ViewportTexture" id=1]
+viewport_path = NodePath("pressure")
+
+[sub_resource type="ViewportTexture" id=2]
+viewport_path = NodePath("velocity")
+
+[resource]
+resource_local_to_scene = true
+shader = ExtResource( 1 )
+shader_param/pressure = SubResource( 1 )
+shader_param/velocity = SubResource( 2 )
+

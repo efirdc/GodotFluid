@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://fluid/splat.shader" type="Shader" id=1]
+
+[resource]
+
+render_priority = 0
+shader = ExtResource( 1 )
+shader_param/color = Color( 0.652344, 0.216599, 0.216599, 1 )
+shader_param/point = Vector2( 5, 5 )
+shader_param/radius = 0.0
+_sections_unfolded = [ "shader_param" ]
+

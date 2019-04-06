@@ -1,0 +1,2157 @@
+[gd_scene load_steps=20 format=2]
+
+[ext_resource path="res://fluid.gd" type="Script" id=1]
+[ext_resource path="res://fluid/advect_density.tres" type="Material" id=2]
+[ext_resource path="res://fluid/splat.shader" type="Shader" id=3]
+[ext_resource path="res://fluid/advect_velocity.tres" type="Material" id=4]
+[ext_resource path="res://fluid/divergence.tres" type="Material" id=5]
+[ext_resource path="res://fluid/pressure.tres" type="Material" id=6]
+[ext_resource path="res://fluid/subtract_pressure.tres" type="Material" id=7]
+[ext_resource path="res://fullscreen_shaders/stepify.tres" type="Material" id=8]
+[ext_resource path="res://fluid/640x360.png" type="Texture" id=9]
+[ext_resource path="res://fullscreen_shaders/pixelize.tres" type="Material" id=10]
+[ext_resource path="res://fullscreen_shaders/colorize.tres" type="Material" id=11]
+
+[sub_resource type="ViewportTexture" id=1]
+viewport_path = NodePath("testing")
+
+[sub_resource type="ImageTexture" id=2]
+size = Vector2( 1, 1 )
+
+[sub_resource type="ShaderMaterial" id=3]
+resource_local_to_scene = true
+shader = ExtResource( 3 )
+shader_param/color = Color( 1, 1, 1, 1 )
+shader_param/point = Vector2( 937.958, -133.484 )
+shader_param/radius = 0.0
+
+[sub_resource type="ImageTexture" id=4]
+size = Vector2( 1, 1 )
+
+[sub_resource type="ShaderMaterial" id=5]
+shader = ExtResource( 3 )
+shader_param/color = Color( 0, 0.5, 0.5, 1 )
+shader_param/point = Vector2( 937.958, -133.484 )
+shader_param/radius = 0.0
+
+[sub_resource type="ImageTexture" id=6]
+size = Vector2( 1, 1 )
+
+[sub_resource type="World" id=7]
+
+[sub_resource type="ViewportTexture" id=8]
+viewport_path = NodePath("density")
+
+[node name="fluid" type="TextureRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource( 1 )
+expand = true
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+viewport_index = 4
+velocity_timestep = 2.0
+density_timestep = 2.0
+density_dissipation = 0.994
+radius = 8.0
+
+[node name="density" type="Viewport" parent="."]
+editor/display_folded = true
+size = Vector2( 640, 360 )
+usage = 0
+render_target_v_flip = true
+render_target_clear_mode = 2
+render_target_update_mode = 3
+
+[node name="sprite" type="TextureRect" parent="density"]
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="splat" type="TextureRect" parent="density"]
+material = SubResource( 3 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource( 4 )
+expand = true
+
+[node name="border2" type="Polygon2D" parent="density"]
+color = Color( 0, 0, 0, 1 )
+invert_enable = true
+invert_border = 1.0
+polygon = PoolVector2Array( 1, 359, 1, 1, 639, 1, 639, 359 )
+
+[node name="velocity" type="Viewport" parent="."]
+editor/display_folded = true
+size = Vector2( 640, 360 )
+usage = 0
+render_target_v_flip = true
+render_target_clear_mode = 2
+render_target_update_mode = 3
+
+[node name="sprite" type="TextureRect" parent="velocity"]
+material = ExtResource( 4 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="splat" type="TextureRect" parent="velocity"]
+material = SubResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 6 )
+expand = true
+
+[node name="border" type="Polygon2D" parent="velocity"]
+color = Color( 0.501961, 0.501961, 0.501961, 1 )
+invert_enable = true
+invert_border = 1.0
+polygon = PoolVector2Array( 1, 359, 1, 1, 639, 1, 639, 359 )
+
+[node name="divergence" type="Viewport" parent="."]
+editor/display_folded = true
+size = Vector2( 640, 360 )
+usage = 0
+render_target_v_flip = true
+render_target_clear_mode = 2
+render_target_update_mode = 3
+
+[node name="sprite" type="TextureRect" parent="divergence"]
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="pressure" type="Viewport" parent="."]
+editor/display_folded = true
+size = Vector2( 640, 360 )
+world = SubResource( 7 )
+usage = 0
+render_target_v_flip = true
+render_target_clear_mode = 2
+render_target_update_mode = 3
+
+[node name="10jacobi1" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi1"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi1/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi1/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi2" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi2"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi2/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi2/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi3" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi3"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi3/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi3/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi4" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi4"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi4/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi4/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi5" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi5"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi5/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi5/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi6" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi6"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi6/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi6/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi7" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi7"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi7/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi7/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi8" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi8"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi8/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi8/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="10jacobi9" type="Control" parent="pressure"]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="jacobi" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi2" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi2"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi2"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi3" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi3"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi3"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi4" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi4"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi4"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi5" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi5"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi5"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi6" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi6"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi6"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi7" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi7"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi7"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi8" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi8"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi8"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi9" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi9"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi9"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="jacobi10" type="Control" parent="pressure/10jacobi9"]
+editor/display_folded = true
+material = ExtResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="buffer" type="BackBufferCopy" parent="pressure/10jacobi9/jacobi10"]
+copy_mode = 2
+
+[node name="sprite" type="TextureRect" parent="pressure/10jacobi9/jacobi10"]
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="border" type="Polygon2D" parent="pressure"]
+color = Color( 0.501961, 0.501961, 0.501961, 1 )
+invert_enable = true
+invert_border = 1.0
+polygon = PoolVector2Array( 1, 359, 1, 1, 639, 1, 639, 359 )
+
+[node name="subtract_pressure" type="Viewport" parent="."]
+size = Vector2( 640, 360 )
+render_target_v_flip = true
+render_target_clear_mode = 2
+render_target_update_mode = 3
+
+[node name="sprite" type="TextureRect" parent="subtract_pressure"]
+material = ExtResource( 7 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 2 )
+expand = true
+
+[node name="solids" type="Viewport" parent="."]
+size = Vector2( 640, 360 )
+transparent_bg = true
+usage = 0
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="testing" type="Viewport" parent="."]
+size = Vector2( 640, 360 )
+usage = 0
+render_target_v_flip = true
+render_target_clear_mode = 2
+render_target_update_mode = 3
+
+[node name="density" type="TextureRect" parent="testing"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+texture = SubResource( 8 )
+expand = true
+
+[node name="buffer" type="BackBufferCopy" parent="testing"]
+copy_mode = 2
+
+[node name="stepify" type="TextureRect" parent="testing"]
+visible = false
+material = ExtResource( 8 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 9 )
+expand = true
+
+[node name="buffer2" type="BackBufferCopy" parent="testing"]
+copy_mode = 2
+
+[node name="pixelize" type="TextureRect" parent="testing"]
+visible = false
+material = ExtResource( 10 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 9 )
+expand = true
+
+[node name="buffer3" type="BackBufferCopy" parent="testing"]
+copy_mode = 2
+
+[node name="colorize" type="TextureRect" parent="testing"]
+material = ExtResource( 11 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 9 )
+expand = true
+

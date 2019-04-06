@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=2]
+
+[ext_resource path="res://fullscreen_shaders/colorize.shader" type="Shader" id=1]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0.236515, 0.344398, 0.755187, 1 )
+colors = PoolColorArray( 0.0153661, 0.0122938, 0.0176809, 1, 0.186078, 0.163452, 0.203125, 1, 1, 0, 0, 1, 1, 0.914398, 0.00390625, 1, 1, 0.97998, 0.679688, 1 )
+
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/color_ramp = SubResource( 2 )
+

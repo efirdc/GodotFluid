@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=2]
+
+[ext_resource path="res://fluid/advect_velocity.shader" type="Shader" id=1]
+
+[sub_resource type="ViewportTexture" id=1]
+viewport_path = NodePath("subtract_pressure")
+
+[resource]
+resource_local_to_scene = true
+shader = ExtResource( 1 )
+shader_param/timestep = 2.0
+shader_param/dissipation = 1.0
+shader_param/velocity = SubResource( 1 )
+
